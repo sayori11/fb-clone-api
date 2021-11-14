@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import User
+from .models import User, FriendRequest
 from djoser.serializers import UserCreateSerializer
 
 class UserCreateSerializer(UserCreateSerializer):
@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'gender', 'bio', 'birthday', 'profile_pic', 'cover_pic', 'total_friends', 'if_friend']
+        fields = ['id', 'first_name', 'last_name', 'email', 'password', 'gender', 'bio', 'birthday', 'profile_pic', 'cover_pic', 'total_friends', 'friends', 'if_friend']
         extra_kwargs = {'password': {'write_only': True}}
 
     def get_total_friends(self, obj):
@@ -30,3 +30,10 @@ class UserEditSerializer(serializers.ModelSerializer):
         model = User
         fields = ['first_name', 'last_name', 'bio', 'birthday', 'profile_pic', 'cover_pic',]
         extra_kwargs = {'password': {'write_only': True}}
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+    sender = UserSerializer(read_only=True, many=False)
+
+    class Meta:
+        model = FriendRequest
+        fields = ['sender', 'sent_at']

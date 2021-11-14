@@ -54,3 +54,15 @@ class User(AbstractUser):
 
     def __str__(self):
         return f'{self.first_name} {self.last_name}'
+
+class FriendRequest(models.Model):
+    
+    sender = models.ForeignKey(User, on_delete = models.CASCADE, related_name='friend_requests_sent')
+    receiver = models.ForeignKey(User, on_delete = models.CASCADE, related_name = 'friend_requests_received')
+    sent_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-sent_at']
+
+    def __str__(self):
+        return f'{self.sender} to {self.receiver}'
