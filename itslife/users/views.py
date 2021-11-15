@@ -4,6 +4,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import UserSerializer, FriendRequestSerializer
 from .models import User, FriendRequest
+from notifications.models import Notification
 from .permissions import IsUserOrReadOnly
 import requests
 
@@ -47,18 +48,21 @@ class FriendRequestView(APIView):
     def post(self, request, user_id, format = None):
         sender = request.user
         receiver = User.objects.get(id=user_id)
-        FriendRequest.objects.create(sender=sender, receiver=receiver)
+        fr = FriendRequest.objects.create(sender=sender, receiver=receiver)
+        Notification.objects.create(notification_type='friend_request', from_user=sender, to_user=receiver, friend_request= fr)
         return Response({"response":"Friend request sent successfully!"}, status=status.HTTP_202_ACCEPTED)
 
 class FriendRequestResponseView(APIView):
 
-    def post(self, request, user_id, response_msg, format = None):
-        friend_request = FriendRequest.objects.get(sender = user_id, receiver=self.request.user)
+    def post(self, request, friendrequest_id, response_msg, format = None):
+        friend_request = FriendRequest.objects.get(id=friendrequest_id)
         sender = friend_request.sender
-        if request.user == friend_request.receiver:
+        receiver = friend_request.receiver
+        if request.user == receiver:
             if response_msg == "accept":
                 friend_request.receiver.friends.add(sender)
                 friend_request.delete()
+                Notification.objects.create(notification_type='friend_request_accept', from_user=receiver, to_user=sender)
                 return Response({"response":"Friend request accepted"})
             elif response_msg == "reject":
                 friend_request.delete()

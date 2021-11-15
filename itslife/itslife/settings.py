@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'djoser',
     "corsheaders",
     'users.apps.UsersConfig',
-    'posts.apps.PostsConfig'
+    'posts.apps.PostsConfig',
+    'notifications.apps.NotificationsConfig'
 ]
 
 MIDDLEWARE = [

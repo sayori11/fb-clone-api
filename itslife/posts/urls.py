@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from django.urls import path, include
-from .views import PostsViewset, UserPostsViewset, CommentsListViewSet, CommentsDetailViewSet, RepliesListViewSet, RepliesDetailViewSet
+from .views import *
 
 
 router = DefaultRouter()
@@ -21,6 +21,9 @@ urlpatterns = [
     path('<int:post_id>/comments/', comments_list, name='comments_list'),
     path('<int:post_id>/comments/<int:pk>/', comments_detail, name='comments_detail'),
     path('comments/<int:comment_id>/replies/', replies_list, name='replies_list'),
-    path('comments/<int:comment_id>/replies/<int:pk>/', replies_detail, name='replies_detail')
+    path('comments/<int:comment_id>/replies/<int:pk>/', replies_detail, name='replies_detail'),
+    path('<int:post_id>/like/', LikePostView.as_view(), name='like_post'),
+    path('<int:post_id>/comments/<int:comment_id>/like/', LikeCommentView.as_view(), name='like_comment'),
+    path('<int:post_id>/share/', SharePostView.as_view(), name='share_post')
 ]
 
