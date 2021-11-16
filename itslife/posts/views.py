@@ -71,8 +71,8 @@ class CommentsListViewSet(generics.ListCreateAPIView):
         post_id = self.kwargs['post_id']
         user = self.request.user
         post = Post.objects.get(id=post_id)
-        Notification.objects.create(notification_type='comment', from_user=user, to_user=post.author)
-        serializer.save(author=self.request.user, parent_post=post)
+        notif = Notification.objects.create(notification_type='comment', from_user=user, to_user=post.author)
+        serializer.save(author=self.request.user, parent_post=post, notification=[notif])
 
 class CommentsDetailViewSet(UpdateView, generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
@@ -98,7 +98,7 @@ class RepliesListViewSet(generics.ListCreateAPIView):
         comment_id = self.kwargs['comment_id']
         comment = Comment.objects.get(id=comment_id)
         notif = Notification.objects.create(notification_type='reply', from_user=self.request.user, to_user=comment.author)
-        serializer.save(author=self.request.user, parent_comment=comment, parent_post = comment.parent_post, notification = notif )
+        serializer.save(author=self.request.user, parent_comment=comment, parent_post = comment.parent_post, notification = [notif] )
         
 
 class RepliesDetailViewSet(UpdateView, generics.RetrieveUpdateDestroyAPIView):
