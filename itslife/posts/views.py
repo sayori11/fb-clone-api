@@ -1,11 +1,12 @@
 from django.shortcuts import render
-from rest_framework import viewsets, generics, views
+from rest_framework import viewsets, generics, views, status
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly
 from .models import Post, Comment
 from notifications.models import Notification
 from users.models import User
 from rest_framework.response import Response
+from django.shortcuts import get_object_or_404
 
 class UpdateView:
     def update(self, request, *args, **kwargs):
@@ -109,39 +110,39 @@ class RepliesDetailViewSet(UpdateView, generics.RetrieveUpdateDestroyAPIView):
 class LikePostView(views.APIView):
     
     def post(self, request, post_id, format=None):
-        post = Post.objects.get(id=post_id)
+        post = get_object_or_404(Post, id=post_id)
         user = request.user
         
         if user in post.liked_by.all():
             post.liked_by.remove(user)
-            return Response({"response":"Unliked the post"})
+            return Response({"response":"Unliked the post"}, status=status.HTTP_200_OK)
         
         post.liked_by.add(user)
         Notification.objects.create(notification_type='like', from_user=user, to_user=post.author, post=post)
-        return Response({"response":"Liked the post"})
+        return Response({"response":"Liked the post"}, status=status.HTTP_200_OK)
 
 class LikeCommentView(views.APIView):
 
     def post(self, request, post_id, comment_id, format=None):
-        comment = Comment.objects.get(id=comment_id)
-        post = Post.objects.get(id=post_id)
+        comment = get_object_or_404(Comment, id=comment_id,)
+        post = get_object_or_404(Post, id=post_id)
         user = request.user
 
         if comment.parent_post != post:
-            return Response({"response":"Comment and post do not match"})
+            return Response({"response":"Comment and post do not match"}, status = status.HTTP_400_BAD_REQUEST)
         if user in comment.liked_by.all():
             comment.liked_by.remove(user)
-            return Response({"response":"Unliked the comment"})
+            return Response({"response":"Unliked the comment"}, status=status.HTTP_200_OK)
 
         comment.liked_by.add(user)
         Notification.objects.create(notification_type='like', from_user=user, to_user=post.author, comment=comment)
-        return Response({"response":"Liked the comment"})
+        return Response({"response":"Liked the comment"}, status=status.HTTP_200_OK)
 
 class SharePostView(views.APIView):
 
     def post(self, request, post_id, format=None):
-        post = Post.objects.get(id=post_id)
+        post = get_object_or_404(Post, id=post_id)
         user = request.user
         post.shared_by.add(user)
         Notification.objects.create(notification_type='share', from_user=user, to_user=post.author, post=post)
-        return Response({"response":"Shared the post"})
+        return Response({"response":"Shared the post"}, status=status.HTTP_200_OK)
