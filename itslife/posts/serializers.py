@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Post, Comment
 from users.models import User
-from users.serializers import UserSerializer
+from users.serializers import UserPreviewSerializer
 
 class RecursiveField(serializers.Serializer):
     def to_representation(self, value):
@@ -9,7 +9,7 @@ class RecursiveField(serializers.Serializer):
         return serializer.data
 
 class CommentSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True, many=False)
+    author = UserPreviewSerializer(read_only=True, many=False)
     likes_count = serializers.SerializerMethodField(read_only=True)
     replies_count = serializers.SerializerMethodField(read_only=True)
     if_liked = serializers.SerializerMethodField(read_only=True)
@@ -32,7 +32,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
-    author = UserSerializer(read_only=True, many=False)
+    author = UserPreviewSerializer(read_only=True, many=False)
     comments = CommentSerializer(many=True, read_only=True)
     likes_count = serializers.SerializerMethodField(read_only=True)
     comments_count = serializers.SerializerMethodField(read_only=True)

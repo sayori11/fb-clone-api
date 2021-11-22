@@ -31,8 +31,14 @@ class UserEditSerializer(serializers.ModelSerializer):
         fields = ['first_name', 'last_name', 'bio', 'birthday', 'profile_pic', 'cover_pic',]
         extra_kwargs = {'password': {'write_only': True}}
 
+class UserPreviewSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'profile_pic']
+
 class FriendRequestSerializer(serializers.ModelSerializer):
-    sender = UserSerializer(read_only=True, many=False)
+    sender = UserPreviewSerializer(read_only=True, many=False)
 
     class Meta:
         model = FriendRequest
