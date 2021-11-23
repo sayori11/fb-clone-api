@@ -51,7 +51,7 @@ class Comment(Content):
     @property
     def replies_count(self):
         try:
-            return self.reply.count()
+            return self.replies.count()
         except:
             return 0
 

@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from rest_framework import viewsets, generics, views, status
 from .serializers import PostSerializer, CommentSerializer
 from .permissions import IsAuthorOrReadOnly
@@ -115,11 +114,11 @@ class LikePostView(views.APIView):
         
         if user in post.liked_by.all():
             post.liked_by.remove(user)
-            return Response({"response":"Unliked the post"}, status=status.HTTP_200_OK)
+            return Response({"response":"Unliked the post", "likes_count":post.likes_count}, status=status.HTTP_200_OK)
         
         post.liked_by.add(user)
         Notification.objects.create(notification_type='like', from_user=user, to_user=post.author, post=post)
-        return Response({"response":"Liked the post"}, status=status.HTTP_200_OK)
+        return Response({"response":"Liked the post", "likes_count":post.likes_count}, status=status.HTTP_200_OK)
 
 class LikeCommentView(views.APIView):
 
@@ -132,11 +131,11 @@ class LikeCommentView(views.APIView):
             return Response({"response":"Comment and post do not match"}, status = status.HTTP_400_BAD_REQUEST)
         if user in comment.liked_by.all():
             comment.liked_by.remove(user)
-            return Response({"response":"Unliked the comment"}, status=status.HTTP_200_OK)
+            return Response({"response":"Unliked the comment", "likes_count":comment.likes_count}, status=status.HTTP_200_OK)
 
         comment.liked_by.add(user)
         Notification.objects.create(notification_type='like', from_user=user, to_user=post.author, comment=comment)
-        return Response({"response":"Liked the comment"}, status=status.HTTP_200_OK)
+        return Response({"response":"Liked the comment", "likes_count":comment.likes_count}, status=status.HTTP_200_OK)
 
 class SharePostView(views.APIView):
 
@@ -145,4 +144,4 @@ class SharePostView(views.APIView):
         user = request.user
         post.shared_by.add(user)
         Notification.objects.create(notification_type='share', from_user=user, to_user=post.author, post=post)
-        return Response({"response":"Shared the post"}, status=status.HTTP_200_OK)
+        return Response({"response":"Shared the post", "shares_count":post.shares_count}, status=status.HTTP_200_OK)
